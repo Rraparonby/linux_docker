@@ -1,0 +1,119 @@
+version: '3.1'
+
+services:
+
+  me_colegio_react_i01:
+
+    build:
+      context: ./03_colegio_react/
+      dockerfile: Dockerfile
+    image: me_colegio_react:0.1
+    
+    container_name: me_colegio_react_c01
+   
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    #working_dir: /home/me_apps/colegio_react/
+    #command: npm run start
+
+    user: 'bydan_lnmn'
+    #user: 1000:1000
+
+    #--------- Running only Bash Service -----------    
+    # stdin_open: true # docker run -i
+    # tty: true        # docker run -t
+    # command: bash
+
+    volumes:
+      - ./03_colegio_react/02_code/:/home/me_apps/
+      - /home/me_apps/colegio_react/node_modules/
+      - ./03_colegio_react/03_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+    ports:
+      - '3007:3007'
+
+    links:
+      - me_colegio_spring_i01
+
+  me_colegio_spring_i01:
+
+    build:
+      context: ./02_colegio_spring/
+      dockerfile: Dockerfile
+    image: me_colegio_spring:0.1
+
+    container_name: me_colegio_spring_c01
+    #image: php:8.1-spring-bullseye  
+
+    restart: 'no'
+
+    environment:
+      NONE: 'none'
+
+    user: 'root'
+
+    # NO VALE (Debe ser root)
+    # user: 'root'
+    # user: 1000:1000
+    # user: 'bydan_lnmn'    
+
+    ports:
+      - '3000:3000'
+
+    #--------- Running only Bash Service -----------
+    
+    #stdin_open: true # docker run -i
+    #tty: true        # docker run -t
+    #command: bash
+
+    # SI VALE (Reemplaza lo del Dockerfile)
+    #command: java -jar ./build/libs/colegio_relaciones-0.0.1-SNAPSHOT.jar
+    #command: gradle bootRun
+
+    volumes:
+      - ./02_colegio_spring/02_code/:/home/me_apps/
+      - ./02_colegio_spring/03_sharing/:/home/sharing/
+      
+    networks:
+      - network_colegio
+
+    links:
+      - me_colegio_mariadb_i01
+
+  me_colegio_mariadb_i01:
+
+    image: mariadb:10.7.6-focal
+    container_name: me_colegio_mariadb_c01
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: 'root'
+      # MYSQL_DATABASE: 'db'
+      # So you don't have to use root, but you can if you like
+      # MYSQL_USER: 'user'
+      # You can use whatever password you like
+      # MYSQL_PASSWORD: 'password'
+      # Password for root access      
+
+    ports:
+      - '3307:3306'
+
+    volumes:
+      - ./01_colegio_mariadb/01_data/dev/:/var/lib/mysql
+      - ./01_colegio_mariadb/02_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+networks:
+  network_colegio:
+    name: 'network_colegio'
+    driver: bridge
+    external: true

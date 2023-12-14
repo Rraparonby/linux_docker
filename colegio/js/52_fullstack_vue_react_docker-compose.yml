@@ -1,0 +1,151 @@
+version: '3.1'
+
+services:
+
+  me_colegio_react_i01:
+
+    build:
+      context: ./04_colegio_react/
+      dockerfile: Dockerfile
+    image: me_colegio_react:0.1
+    
+    container_name: me_colegio_react_c01
+   
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    #working_dir: /home/me_apps/colegio_react/
+    #command: npm run start
+
+    user: 'bydan_lnmn'
+    #user: 1000:1000
+
+    #--------- Running only Bash Service -----------    
+    # stdin_open: true # docker run -i
+    # tty: true        # docker run -t
+    # command: bash
+
+    volumes:
+      - ./04_colegio_react/02_code/:/home/me_apps/
+      - /home/me_apps/colegio_react/node_modules/
+      - ./04_colegio_react/03_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+    ports:
+      - '3007:3007'
+
+    links:
+      - me_colegio_nest_i01
+
+  #me_colegio_vue_i01:
+
+  #  build:
+  #    context: ./03_colegio_vue/
+  #    dockerfile: Dockerfile
+  #  image: me_colegio_vue:0.1
+    
+  #  container_name: me_colegio_vue_c01
+   
+  #  restart: always
+
+  #  environment:
+  #    NONE: 'none'
+
+  #  #working_dir: /home/me_apps/colegio_vue/
+  #  #command: npm run start
+
+  #  user: 'bydan_lnmn'
+  #  #user: 1000:1000
+
+  #  #--------- Running only Bash Service -----------    
+  #  # stdin_open: true # docker run -i
+  #  # tty: true        # docker run -t
+  #  # command: bash
+
+  #  volumes:
+  #    - ./03_colegio_vue/02_code/:/home/me_apps/
+  #    - /home/me_apps/colegio_vue/node_modules/
+  #    - ./03_colegio_vue/03_sharing/:/home/sharing/
+
+  #  networks:
+  #    - network_colegio
+
+  #  ports:
+  #    - '3006:3006'
+
+  #  links:
+  #    - me_colegio_nest_i01
+
+  me_colegio_nest_i01:
+
+    build:
+      context: ./02_colegio_nest/
+      dockerfile: Dockerfile
+    image: me_colegio_nest:0.1
+
+    container_name: me_colegio_nest_c01
+    #image: php:8.1-nest-bullseye  
+
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    user: 'bydan_lnmn'    
+    #user: 1000:1000
+
+    ports:
+      - '3000:3000'
+
+    #--------- Running only Bash Service -----------
+    
+    #stdin_open: true # docker run -i
+    #tty: true        # docker run -t
+    #command: bash
+
+    volumes:
+      - ./02_colegio_nest/02_code/:/home/me_apps/
+      - /home/me_apps/colegio_nest/node_modules/
+      - ./02_colegio_nest/03_sharing/:/home/sharing/
+      
+    networks:
+      - network_colegio
+
+    links:
+      - me_colegio_mariadb_i01
+
+  me_colegio_mariadb_i01:
+
+    image: mariadb:10.7.6-focal
+    container_name: me_colegio_mariadb_c01
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: 'root'
+      # MYSQL_DATABASE: 'db'
+      # So you don't have to use root, but you can if you like
+      # MYSQL_USER: 'user'
+      # You can use whatever password you like
+      # MYSQL_PASSWORD: 'password'
+      # Password for root access      
+
+    ports:
+      - '3307:3306'
+
+    volumes:
+      - ./01_colegio_mariadb/01_data/dev/:/var/lib/mysql
+      - ./01_colegio_mariadb/02_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+networks:
+  network_colegio:
+    name: 'network_colegio'
+    driver: bridge
+    external: true

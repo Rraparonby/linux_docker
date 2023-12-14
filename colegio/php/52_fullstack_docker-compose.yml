@@ -1,0 +1,120 @@
+version: '3.1'
+
+services:
+
+  me_colegio_vue_i01:
+
+    build:
+      context: ./03_colegio_vue/
+      dockerfile: Dockerfile
+
+    image: me_colegio_vue:0.1
+    
+    container_name: me_colegio_vue_c01
+   
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    #working_dir: /home/me_apps/colegio_vue/
+    #command: npm run start
+
+    user: 'bydan_lnmn'
+
+    #user: 1001:1001
+
+    #--------- Running only Bash Service -----------    
+    # stdin_open: true # docker run -i
+    # tty: true        # docker run -t
+    # command: bash
+
+    volumes:
+      - ./03_colegio_vue/02_code/:/home/me_apps/
+      - /home/me_apps/colegio_vue/node_modules/
+      - ./03_colegio_vue/03_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+    ports:
+      - '3006:3006'
+
+    links:
+      - me_colegio_laravel_i01
+
+  me_colegio_laravel_i01:
+
+    build:
+      context: ./02_colegio_laravel/
+      dockerfile: Dockerfile
+
+    image: me_colegio_laravel:0.1
+
+    container_name: me_colegio_laravel_c01
+    #image: php:8.1-laravel-bullseye  
+
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    user: 'bydan_lnmn'    
+    #user: 1000:1000
+
+    ports:
+      - '3000:80'
+
+    #--------- Running only Bash Service -----------
+    
+    #stdin_open: true # docker run -i
+    #tty: true        # docker run -t
+    #command: bash
+
+    volumes:
+      - ./02_colegio_laravel/02_code/:/var/www/html/
+      - ./02_colegio_laravel/03_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+    links:
+      - me_colegio_mariadb_i01
+
+  me_colegio_mariadb_i01:
+
+    #build:
+    #  context: ./01_colegio_mariadb/
+    #  dockerfile: Dockerfile
+
+    image: mariadb:10.7.6-focal # mariadb:10.7.6-focal,   me_colegio_mariadb:0.1
+
+    container_name: me_colegio_mariadb_c01
+
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: 'root'
+      # MYSQL_DATABASE: 'db'
+      # So you don't have to use root, but you can if you like
+      # MYSQL_USER: 'user'
+      # You can use whatever password you like
+      # MYSQL_PASSWORD: 'password'
+      # Password for root access      
+
+    ports:
+      - '3307:3306'
+
+    volumes:
+      - ./01_colegio_mariadb/01_data/dev/:/var/lib/mysql
+      - ./01_colegio_mariadb/02_sharing/:/home/sharing/
+
+    networks:
+      - network_colegio
+
+networks:
+  network_colegio:
+    name: 'network_colegio'
+    driver: bridge
+    external: true    #(Usa Existente)

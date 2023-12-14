@@ -1,0 +1,95 @@
+version: '3.1'
+
+services:
+
+  me_colegio_vue_ip01:
+
+    build:
+      context: ./03_colegio_vue/
+      dockerfile: Dockerfile_Prod
+
+    image: me_colegio_vue_prod:0.1
+    
+    container_name: me_colegio_vue_cp01
+   
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    ports:
+      - '3006:80'
+
+    networks:
+      - network_colegio
+      
+    links:
+      - me_colegio_laravel_ip01
+
+  me_colegio_laravel_ip01:
+
+    build:
+      context: ./02_colegio_laravel/
+      dockerfile: Dockerfile_Prod
+      
+    image: me_colegio_laravel_prod:0.1
+
+    container_name: me_colegio_laravel_cp01
+    #image: php:8.1-laravel-bullseye  
+
+    restart: always
+
+    environment:
+      NONE: 'none'
+
+    user: 'bydan_lnmn'    
+    #user: 1000:1000
+
+    ports:
+      - '3000:80'
+
+    #--------- Running only Bash Service -----------
+    
+    #stdin_open: true # docker run -i
+    #tty: true        # docker run -t
+    #command: bash
+
+    #volumes:
+    #  - ./02_colegio_laravel/02_code/:/var/www/html/
+ 
+    networks:
+      - network_colegio
+
+    links:
+      - me_colegio_mariadb_ip01
+
+  me_colegio_mariadb_ip01:
+
+    image: mariadb:10.7.6-focal
+    container_name: me_colegio_mariadb_c01 # NO CAMBIAR, dev/prod = me_colegio_mariadb_c01
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: 'root'
+      # MYSQL_DATABASE: 'db'
+      # So you don't have to use root, but you can if you like
+      # MYSQL_USER: 'user'
+      # You can use whatever password you like
+      # MYSQL_PASSWORD: 'password'
+      # Password for root access      
+
+    ports:
+      - '3307:3306'
+
+    volumes:
+      - ./01_colegio_mariadb/01_data/prod/:/var/lib/mysql
+ 
+    networks:
+      - network_colegio
+
+networks:
+  network_colegio:
+    name: 'network_colegio'
+    driver: bridge
+    external: true    #(Usa Existente)
